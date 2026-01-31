@@ -96,17 +96,28 @@ price-tracker-bot/
 - **httpx** - HTTP client
 - **BeautifulSoup4** - HTML parsing
 
-## 🚀 Railway'e Deploy
+## 🚀 Cloud'a Deploy (Ücretsiz)
 
-1. [Railway.app](https://railway.app)'e giriş yap
-2. "New Project" → "Deploy from GitHub repo" seç
-3. Bu repo'yu seç
-4. "Add PostgreSQL" database ekle
-5. Environment variables ekle:
+### Render.com (Önerilen)
+
+1. [Render.com](https://render.com)'a giriş yap
+2. "New +" → "Web Service" seç
+3. Bu GitHub repo'yu bağla
+4. Build Command: `pip install -r requirements.txt`
+5. Start Command: `python -m src.price_tracker_bot.main`
+6. "Add PostgreSQL" database ekle (ücretsiz)
+7. Environment variables ekle:
    - `BOT_TOKEN`: Telegram bot token'ın
-6. Deploy et!
+   - `DATABASE_URL`: Otomatik gelecek
+8. Deploy et!
 
-Railway otomatik olarak `DATABASE_URL` ekleyecek ve bot 7/24 çalışacak.
+### Alternatifler
+
+- **fly.io**: Telegram botlar için popüler
+- **Koyeb**: Kolay deploy
+- **PythonAnywhere**: Python odaklı
+
+Render ücretsiz tier ile bot 7/24 çalışacak.
 
 ## 👤 Geliştirici
 
