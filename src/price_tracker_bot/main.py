@@ -1,5 +1,6 @@
 import asyncio
 from aiogram import Bot
+from aiogram.types import Update
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
 
@@ -21,6 +22,10 @@ async def health_check(request):
 
 async def main() -> None:
     settings = load_settings()
+    
+    # Debug: Hangi database kullanıldığını göster
+    print(f"📊 Database URL: {settings.database_url[:50]}...")
+    
     bot = Bot(token=settings.bot_token)
 
     engine = build_engine(settings.database_url)
@@ -59,11 +64,20 @@ async def main() -> None:
             drop_pending_updates=True
         )
         
-        # Webhook handler
+        # Webhook handler - Update objesini düzgün parse et
         async def webhook_handler(request):
-            update = await request.json()
-            await dp.feed_update(bot, update)
-            return web.Response(text="OK")
+            try:
+                update_dict = await request.json()
+                # Dict'i Update objesine çevir
+                update = Update(**update_dict)
+                # Bot instance'ını ekle
+                update.bot = bot
+                # Dispatcher'a gönder
+                await dp.feed_update(bot, update)
+                return web.Response(text="OK", status=200)
+            except Exception as e:
+                print(f"❌ Webhook error: {e}")
+                return web.Response(text="ERROR", status=500)
         
         # Aiohttp app oluştur
         app = web.Application()
@@ -78,6 +92,7 @@ async def main() -> None:
         
         print(f"✅ Bot webhook modunda çalışıyor - Port: {settings.port}")
         print(f"✅ Health check: http://0.0.0.0:{settings.port}/health")
+        print(f"✅ Webhook: {settings.webhook_url}{webhook_path}")
         
         # Sonsuza kadar çalışmaya devam et
         await asyncio.Event().wait()
