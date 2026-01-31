@@ -114,12 +114,25 @@ async def on_track_action(query: CallbackQuery, callback_data: TrackActionCb, db
         await query.answer()
         if query.message:
             has_image = bool(item.image_url or item.telegram_file_id)
-            await query.message.edit_text(
-                _item_text(item),
-                reply_markup=tracking_item_kb(item_id=item.id, is_active=item.is_active, has_image=has_image),
-                parse_mode="Markdown",
-                disable_web_page_preview=True
-            )
+            # Eğer mesaj fotolu mesajsa, edit yapamayız - yeni mesaj gönder
+            if query.message.photo:
+                try:
+                    await query.message.delete()
+                except:
+                    pass
+                await query.message.answer(
+                    _item_text(item),
+                    reply_markup=tracking_item_kb(item_id=item.id, is_active=item.is_active, has_image=has_image),
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True
+                )
+            else:
+                await query.message.edit_text(
+                    _item_text(item),
+                    reply_markup=tracking_item_kb(item_id=item.id, is_active=item.is_active, has_image=has_image),
+                    parse_mode="Markdown",
+                    disable_web_page_preview=True
+                )
         return
 
     if callback_data.action == "close":

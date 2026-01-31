@@ -79,13 +79,26 @@ async def add_tracking(message: Message, db_session: AsyncSession) -> None:
         )
 
     except Exception as e:
-        # Session'da hata varsa rollback yap
-        await db_session.rollback()
-        await status_msg.delete()
-        await message.answer(
-            f"❌ Takip eklenemedi.\n\n"
-            f"Hata: {str(e)[:200]}"
-        )
+        # Session'ı rollback yap (middleware commit yapmaya çalışmasın)
+        try:
+            await db_session.rollback()
+        except:
+            pass
+        
+        # Hata mesajını kullanıcıya göster
+        try:
+            await status_msg.delete()
+        except:
+            pass
+        
+        try:
+            await message.answer(
+                f"❌ Takip eklenemedi.\n\n"
+                f"Hata: {str(e)[:200]}"
+            )
+        except:
+            pass
+        # Exception'ı suppress et - middleware commit yapmasın
 
 @router.message(Command("list"))
 async def list_tracking(message: Message, db_session: AsyncSession) -> None:
