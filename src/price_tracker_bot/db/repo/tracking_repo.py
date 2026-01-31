@@ -26,8 +26,9 @@ class TrackingRepo:
             image_url=image_url,
         )
         self.session.add(item)
-        await self.session.commit()
-        await self.session.refresh(item)
+        # flush() yaparak ID'yi hemen al, middleware commit yapacak
+        # Eğer flush() hata verirse exception fırlatır, middleware rollback yapar
+        await self.session.flush()
         return item
 
     async def list_by_chat(self, chat_id: int) -> list[TrackingItem]:
@@ -43,7 +44,6 @@ class TrackingRepo:
     async def remove(self, chat_id: int, item_id: int) -> bool:
         q = delete(TrackingItem).where(TrackingItem.chat_id == chat_id, TrackingItem.id == item_id)
         res = await self.session.execute(q)
-        await self.session.commit()
         return (res.rowcount or 0) > 0
 
     async def set_active(self, chat_id: int, item_id: int, active: bool) -> bool:
@@ -53,7 +53,6 @@ class TrackingRepo:
             .values(is_active=active)
         )
         res = await self.session.execute(q)
-        await self.session.commit()
         return (res.rowcount or 0) > 0
 
     async def set_threshold(self, chat_id: int, item_id: int, pct: float) -> bool:
@@ -65,7 +64,6 @@ class TrackingRepo:
             .values(threshold_pct=float(pct))
         )
         res = await self.session.execute(q)
-        await self.session.commit()
         return (res.rowcount or 0) > 0
 
     async def set_telegram_file_id(self, chat_id: int, item_id: int, file_id: str) -> bool:
@@ -75,7 +73,6 @@ class TrackingRepo:
             .values(telegram_file_id=file_id)
         )
         res = await self.session.execute(q)
-        await self.session.commit()
         return (res.rowcount or 0) > 0
     
     async def list_active(self) -> list[TrackingItem]:
@@ -92,5 +89,4 @@ class TrackingRepo:
             .values(last_price=new_price)
         )
         res = await self.session.execute(q)
-        await self.session.commit()
         return (res.rowcount or 0) > 0

@@ -21,48 +21,56 @@ class PriceCheckerService:
     async def check_all_prices(self):
         """Tüm aktif ürünlerin fiyatlarını kontrol et"""
         async with self.sessionmaker() as session:
-            repo = TrackingRepo(session)
-            
-            # Tüm aktif ürünleri al
-            items = await repo.list_active()
-            
-            print(f"[{datetime.now()}] Checking {len(items)} active items...")
-            
-            for item in items:
-                try:
-                    # Ürün bilgilerini çek
-                    product_info = await product_service.fetch_product_info(item.url)
-                    
-                    if not product_info.price:
-                        continue
-                    
-                    current_price = product_info.price
-                    old_price = item.last_price or item.baseline_price
-                    
-                    # Fiyat düştü mü kontrol et
-                    if current_price < old_price:
-                        price_drop_pct = ((old_price - current_price) / old_price) * 100
+            try:
+                repo = TrackingRepo(session)
+                
+                # Tüm aktif ürünleri al
+                items = await repo.list_active()
+                
+                print(f"[{datetime.now()}] Checking {len(items)} active items...")
+                
+                for item in items:
+                    try:
+                        # Ürün bilgilerini çek
+                        product_info = await product_service.fetch_product_info(item.url)
                         
-                        # Eşik kontrolü
-                        if price_drop_pct >= item.threshold_pct:
-                            # Kullanıcıya bildirim gönder
-                            await self._send_price_drop_notification(
-                                item, 
-                                old_price, 
-                                current_price, 
-                                price_drop_pct
-                            )
-                    
-                    # Fiyatı güncelle
-                    await repo.update_price(item.id, current_price)
-                    await session.commit()
-                    
-                    # Rate limiting için kısa bekleme
-                    await asyncio.sleep(2)
-                    
-                except Exception as e:
-                    print(f"Error checking item {item.id}: {e}")
-                    continue
+                        if not product_info.price:
+                            continue
+                        
+                        current_price = product_info.price
+                        old_price = item.last_price or item.baseline_price
+                        
+                        # Fiyat düştü mü kontrol et
+                        if current_price < old_price:
+                            price_drop_pct = ((old_price - current_price) / old_price) * 100
+                            
+                            # Eşik kontrolü
+                            if price_drop_pct >= item.threshold_pct:
+                                # Kullanıcıya bildirim gönder
+                                await self._send_price_drop_notification(
+                                    item, 
+                                    old_price, 
+                                    current_price, 
+                                    price_drop_pct
+                                )
+                        
+                        # Fiyatı güncelle
+                        await repo.update_price(item.id, current_price)
+                        
+                        # Rate limiting için kısa bekleme
+                        await asyncio.sleep(2)
+                        
+                    except Exception as e:
+                        print(f"Error checking item {item.id}: {e}")
+                        await session.rollback()
+                        continue
+                
+                # Tüm değişiklikleri commit et
+                await session.commit()
+                
+            except Exception as e:
+                print(f"Error in price checker: {e}")
+                await session.rollback()
     
     async def _send_price_drop_notification(
         self, 

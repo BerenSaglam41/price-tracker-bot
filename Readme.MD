@@ -47,7 +47,12 @@ BOT_TOKEN=your_bot_token_here
 DATABASE_URL=sqlite+aiosqlite:///./price_tracker.db
 ```
 
-5. **Botu başlatın:**
+5. **Database'i hazırlayın:**
+```bash
+python init_db.py
+```
+
+6. **Botu başlatın:**
 ```bash
 ./run.sh
 ```
@@ -101,15 +106,18 @@ price-tracker-bot/
 ### Render.com (Önerilen)
 
 1. [Render.com](https://render.com)'a giriş yap
-2. "New +" → "Web Service" seç
-3. Bu GitHub repo'yu bağla
-4. Build Command: `pip install -r requirements.txt`
-5. Start Command: `python -m src.price_tracker_bot.main`
-6. "Add PostgreSQL" database ekle (ücretsiz)
-7. Environment variables ekle:
+2. "New +" → "PostgreSQL" database oluştur (ücretsiz)
+3. Database URL'sini kopyala
+4. "New +" → "Web Service" seç
+5. Bu GitHub repo'yu bağla
+6. Build Command: `pip install -r requirements.txt && python init_db.py`
+7. Start Command: `python -m src.price_tracker_bot.main`
+8. Environment variables ekle:
    - `BOT_TOKEN`: Telegram bot token'ın
-   - `DATABASE_URL`: Otomatik gelecek
-8. Deploy et!
+   - `DATABASE_URL`: PostgreSQL connection string (2. adımdan)
+9. Deploy et!
+
+**Not:** İlk deployment'ta init_db.py tabloları oluşturur. Sonraki deploymentlarda database zaten hazır olacak.
 
 ### Alternatifler
 

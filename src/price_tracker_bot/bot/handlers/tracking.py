@@ -79,31 +79,11 @@ async def add_tracking(message: Message, db_session: AsyncSession) -> None:
         )
 
     except Exception as e:
-        # Hata olsa bile URL'yi kaydet
-        try:
-            item = await repo.add(
-                chat_id=message.chat.id,
-                url=url,
-                baseline_price=0.0,
-                title=None,
-                image_url=None
-            )
-            await status_msg.delete()
-            await message.answer(
-                f"⚠️ Ürün bilgileri çekilemedi ama takibe alındı.\n\n"
-                f"🆔 ID: {item.id}\n"
-                f"🔗 [Link]({url})\n\n"
-                f"Fiyatı manuel olarak güncelleyebilirsin.\n\n"
-                f"Hata detayı: {str(e)[:150]}",
-                parse_mode="Markdown",
-                disable_web_page_preview=True
-            )
-        except Exception as save_error:
-            await status_msg.delete()
-            await message.answer(
-                f"❌ Takip eklenemedi.\n\n"
-                f"Hata: {str(save_error)[:100]}"
-            )
+        await status_msg.delete()
+        await message.answer(
+            f"❌ Takip eklenemedi.\n\n"
+            f"Hata: {str(e)[:200]}"
+        )
 
 @router.message(Command("list"))
 async def list_tracking(message: Message, db_session: AsyncSession) -> None:
