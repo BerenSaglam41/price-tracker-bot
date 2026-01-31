@@ -1,6 +1,7 @@
 import asyncio
 from aiogram import Bot
 from aiogram.types import Update
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiohttp import web
 
@@ -64,25 +65,18 @@ async def main() -> None:
             drop_pending_updates=True
         )
         
-        # Webhook handler - Update objesini düzgün parse et
-        async def webhook_handler(request):
-            try:
-                update_dict = await request.json()
-                # Dict'i Update objesine çevir
-                update = Update(**update_dict)
-                # Bot instance'ını ekle
-                update.bot = bot
-                # Dispatcher'a gönder
-                await dp.feed_update(bot, update)
-                return web.Response(text="OK", status=200)
-            except Exception as e:
-                print(f"❌ Webhook error: {e}")
-                return web.Response(text="ERROR", status=500)
-        
         # Aiohttp app oluştur
         app = web.Application()
-        app.router.add_post(webhook_path, webhook_handler)
+        
+        # Health check endpoint
         app.router.add_get("/health", health_check)
+        
+        # Aiogram'ın built-in webhook handler'ını kullan
+        webhook_requests_handler = SimpleRequestHandler(
+            dispatcher=dp,
+            bot=bot,
+        )
+        webhook_requests_handler.register(app, path=webhook_path)
         
         # Web sunucuyu başlat
         runner = web.AppRunner(app)
