@@ -18,8 +18,15 @@ class DbSessionMiddleware(BaseMiddleware):
             data["db_session"] = session
             try:
                 result = await handler(event, data)
+                # Handler başarılı olduysa commit yap
+                if not session.is_active:
+                    # Session zaten rollback yapılmış, commit etme
+                    return result
                 await session.commit()
                 return result
-            except Exception:
-                await session.rollback()
+            except Exception as e:
+                # Hata olursa rollback yap
+                if session.is_active:
+                    await session.rollback()
+                # Exception'ı handler'a fırlat (handler kendi mesajını gösterecek)
                 raise

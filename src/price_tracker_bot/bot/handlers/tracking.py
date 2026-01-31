@@ -79,6 +79,8 @@ async def add_tracking(message: Message, db_session: AsyncSession) -> None:
         )
 
     except Exception as e:
+        # Session'da hata varsa rollback yap
+        await db_session.rollback()
         await status_msg.delete()
         await message.answer(
             f"❌ Takip eklenemedi.\n\n"
