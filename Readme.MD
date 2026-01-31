@@ -128,14 +128,28 @@ price-tracker-bot/
 #### Adım 3: Environment Variables
 Dashboard'da Environment variables ekle:
 - `BOT_TOKEN`: Telegram bot token'ın (BotFather'dan)
-- `WEBHOOK_URL`: `https://YOUR-APP-NAME.onrender.com` (App URL'inizi buraya yazın)
 - `DATABASE_URL`: PostgreSQL database'den otomatik bağlanacak
+- `WEBHOOK_URL`: **ŞİMDİLİK BOŞ BIRAK** - Deploy olduktan sonra ekleyeceğiz
 
-#### Adım 4: Deploy Et!
+#### Adım 4: İlk Deploy
 - "Create Web Service" butonuna tıkla
-- İlk deploy ~5 dakika sürer
+- Deploy tamamlanmasını bekle (~5 dakika)
+- Render sana bir URL verecek: `https://SENIN-SERVIS-ADIN.onrender.com`
+
+#### Adım 5: WEBHOOK_URL Ekle
+- Deploy tamamlandıktan sonra, Render dashboard'undan servisin URL'sini kopyala
+- Environment Variables'a geri dön
+- `WEBHOOK_URL` ekle ve servisin tam URL'sini yapıştır
+- Örnek: `https://price-tracker-bot-abc123.onrender.com` (senin gerçek URL'in farklı olacak)
+- "Save Changes" - Servis otomatik yeniden başlayacak
+
+#### Adım 6: Test Et!
+#### Adım 6: Test Et!
 - Bot otomatik olarak database tablolarını oluşturacak
-- Health check: `https://YOUR-APP-NAME.onrender.com/health`
+- Health check kontrol et: `https://SENIN-URL.onrender.com/health` (OK dönmeli)
+- Telegram'da botuna `/start` yaz
+- `/add <trendyol-link>` ile ürün ekle
+- `/list` ile ürünleri listele
 
 **Önemli Notlar:**
 - ✅ Webhook modu kullanıldığı için Render'da düzgün çalışır

@@ -8,7 +8,7 @@ services:
       - key: BOT_TOKEN
         sync: false
       - key: WEBHOOK_URL
-        value: https://price-tracker-bot.onrender.com
+        sync: false
       - key: PORT
         value: 10000
       - key: DATABASE_URL
