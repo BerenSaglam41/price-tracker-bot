@@ -22,11 +22,15 @@ def load_settings() -> Settings:
     if not db_url:
         raise RuntimeError("DATABASE_URL is missing. Create a .env file based on .env.example")
     
-    # Render PostgreSQL URL'ini asyncpg uyumlu hale getir
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
-    elif db_url.startswith("postgresql://") and "asyncpg" not in db_url:
-        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    # PostgreSQL URL'ini her zaman asyncpg formatına çevir
+    if "postgresql" in db_url.lower() and "+asyncpg" not in db_url:
+        # postgres:// veya postgresql:// -> postgresql+asyncpg://
+        if db_url.startswith("postgres://"):
+            db_url = "postgresql+asyncpg://" + db_url[11:]  # "postgres://" kaldır
+        elif db_url.startswith("postgresql://"):
+            db_url = "postgresql+asyncpg://" + db_url[13:]  # "postgresql://" kaldır
+    
+    print(f"🔧 Final Database URL format: {db_url[:30]}...")  # Debug için
     
     return Settings(
         bot_token=token,
