@@ -2,6 +2,8 @@
 
 Trendyol ürünlerinin fiyatlarını otomatik takip eden Telegram botu. Her 5 dakikada bir fiyatları kontrol edip düşünce bildirim gönderir.
 
+**🤖 [Botu Kullan: @saul_fav_tracker_bot](https://t.me/saul_fav_tracker_bot)**
+
 ## 📌 Özellikler
 
 - ✅ Trendyol ürün linklerini takip etme
