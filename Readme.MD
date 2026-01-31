@@ -45,6 +45,7 @@ cp .env.example .env
 ```
 BOT_TOKEN=your_bot_token_here
 DATABASE_URL=sqlite+aiosqlite:///./price_tracker.db
+# WEBHOOK_URL boş bırakın - local'de polling kullanılır
 ```
 
 5. **Database'i hazırlayın:**
@@ -55,7 +56,11 @@ python init_db.py
 6. **Botu başlatın:**
 ```bash
 ./run.sh
+# veya
+python -m src.price_tracker_bot.main
 ```
+
+**Not:** Local geliştirmede WEBHOOK_URL boş kalır, bot otomatik olarak polling modunu kullanır.
 
 ## 📱 Kullanım
 
@@ -105,27 +110,44 @@ price-tracker-bot/
 
 ### Render.com (Önerilen)
 
+#### Adım 1: PostgreSQL Database Oluştur
 1. [Render.com](https://render.com)'a giriş yap
-2. "New +" → "PostgreSQL" database oluştur (ücretsiz)
-3. Database URL'sini kopyala
-4. "New +" → "Web Service" seç
-5. Bu GitHub repo'yu bağla
-6. Build Command: `pip install -r requirements.txt && python init_db.py`
-7. Start Command: `python -m src.price_tracker_bot.main`
-8. Environment variables ekle:
-   - `BOT_TOKEN`: Telegram bot token'ın
-   - `DATABASE_URL`: PostgreSQL connection string (2. adımdan)
-9. Deploy et!
+2. "New +" → "PostgreSQL" seç
+3. Database adı: `price-tracker-db`
+4. Plan: Free
+5. Create Database
 
-**Not:** İlk deployment'ta init_db.py tabloları oluşturur. Sonraki deploymentlarda database zaten hazır olacak.
+#### Adım 2: Web Service Oluştur
+1. "New +" → "Web Service" seç
+2. Bu GitHub repo'yu bağla
+3. Ayarlar:
+   - **Name**: `price-tracker-bot`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `python -m src.price_tracker_bot.main`
+
+#### Adım 3: Environment Variables
+Dashboard'da Environment variables ekle:
+- `BOT_TOKEN`: Telegram bot token'ın (BotFather'dan)
+- `WEBHOOK_URL`: `https://YOUR-APP-NAME.onrender.com` (App URL'inizi buraya yazın)
+- `DATABASE_URL`: PostgreSQL database'den otomatik bağlanacak
+
+#### Adım 4: Deploy Et!
+- "Create Web Service" butonuna tıkla
+- İlk deploy ~5 dakika sürer
+- Bot otomatik olarak database tablolarını oluşturacak
+- Health check: `https://YOUR-APP-NAME.onrender.com/health`
+
+**Önemli Notlar:**
+- ✅ Webhook modu kullanıldığı için Render'da düzgün çalışır
+- ✅ Database tabloları otomatik oluşturulur
+- ✅ Ücretsiz tier ile 7/24 çalışır
+- ⚠️ Free tier 15 dakika inaktivite sonrası uyur, webhook gelince uyanır
 
 ### Alternatifler
 
 - **fly.io**: Telegram botlar için popüler
+- **Railway**: Kolay deploy, $5 ücretsiz credit
 - **Koyeb**: Kolay deploy
-- **PythonAnywhere**: Python odaklı
-
-Render ücretsiz tier ile bot 7/24 çalışacak.
 
 ## 👤 Geliştirici
 
