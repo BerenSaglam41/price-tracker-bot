@@ -22,9 +22,11 @@ def load_settings() -> Settings:
     if not db_url:
         raise RuntimeError("DATABASE_URL is missing. Create a .env file based on .env.example")
     
-    # Render postgres:// URL'ini asyncpg uyumlu hale getir
+    # Render PostgreSQL URL'ini asyncpg uyumlu hale getir
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+    elif db_url.startswith("postgresql://") and "asyncpg" not in db_url:
+        db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
     
     return Settings(
         bot_token=token,
